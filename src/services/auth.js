@@ -6,9 +6,20 @@ export const login = async (email, password) => {
       email,
       password,
     });
-    const token = response.data.token;
-    localStorage.setItem("token", token);
+    return response;
   } catch (error) {
-    console.error(error);
+    throw error;
+  }
+};
+
+export const registerUser = async (email, password) => {
+  try {
+    const response = await apiInstance.post("/register", {
+      email,
+      password,
+    });
+    return response;
+  } catch (error) {
+    throw error;
   }
 };

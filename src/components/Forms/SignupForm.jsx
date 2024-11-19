@@ -3,10 +3,10 @@ import AppButton from "components/Base/AppButton";
 import { useNavigate } from "react-router-dom";
 import * as Yup from "yup";
 import { useFormik } from "formik";
-import { login } from "services/auth";
+import { registerUser } from "services/auth";
 import { toast } from "react-toastify";
 
-const LoginForm = () => {
+const SignupForm = () => {
   const navigate = useNavigate();
 
   const validationSchema = Yup.object({
@@ -16,26 +16,34 @@ const LoginForm = () => {
     password: Yup.string()
       .min(6, "Password must be at least 6 characters")
       .required("Password is required"),
+    confirmPassword: Yup.string()
+      .oneOf([Yup.ref("password"), null], "Passwords must match")
+      .required("Confirm password is required"),
   });
 
   const formik = useFormik({
     initialValues: {
       email: "",
       password: "",
+      confirmPassword: "",
     },
     validateOnChange: true,
     validateOnMount: true,
     validateOnBlur: true,
     validationSchema,
     onSubmit: () => {
-      login(formik.values.email, formik.values.password)
+      // Implement signup API logic here
+      // localStorage.setItem("token", "toBeReplacedWithToken");
+      // navigate("/dashboard");
+
+      registerUser(formik.values.email, formik.values.password)
         .then((res) => {
           localStorage.setItem("token", res.accessToken);
           navigate("/dashboard");
-          toast.success("Login Successful");
+          toast.success("Signup Successful");
         })
         .catch((err) => {
-          toast.error("Failed to Login");
+          toast.error("Failed to Signup");
         });
     },
   });
@@ -43,7 +51,7 @@ const LoginForm = () => {
   return (
     <div className="w-full flex h-fit flex-col items-center gap-6">
       <p className="text-[22px] font-semibold leading-[33px] text-center">
-        Sign In Or Register
+        Create Your Account
       </p>
 
       <form
@@ -89,31 +97,47 @@ const LoginForm = () => {
           ) : null}
         </div>
 
-        <p className="text-sm font-medium leading-[21px] text-center underline underline-offset-1">
-          Forgot your password?
-        </p>
+        <div>
+          <AppTextField
+            placeholder="Confirm Password"
+            className="h-[54px] rounded-[60px]"
+            name="confirmPassword"
+            type="password"
+            value={formik.values.confirmPassword}
+            onChange={(e) => {
+              formik.handleChange(e);
+              formik.setFieldTouched("confirmPassword", true, true);
+            }}
+            onBlur={formik.handleBlur}
+          />
+          {formik.touched.confirmPassword && formik.errors.confirmPassword ? (
+            <div className="text-red-500 text-center mt-1 text-xs">
+              {formik.errors.confirmPassword}
+            </div>
+          ) : null}
+        </div>
 
         <AppButton
           className="h-[54px] rounded-[60px] w-full max-w-[280px] mx-auto"
           type="submit"
         >
-          Login
+          Sign Up
         </AppButton>
       </form>
 
       <p className="text-center text-sm font-normal leading-[23px] mt-3 text-tertiary-100">
-        Don’t have an account?{" "}
+        Already have an account?{" "}
         <strong
           className="underline underline-offset-1 text-tertiary cursor-pointer"
           onClick={() => {
-            navigate("/sign-up");
+            navigate("/login");
           }}
         >
-          Sign Up
+          Sign In
         </strong>
       </p>
     </div>
   );
 };
 
-export default LoginForm;
+export default SignupForm;

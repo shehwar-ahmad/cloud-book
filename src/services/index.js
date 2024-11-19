@@ -1,7 +1,9 @@
 import axios from "axios";
 
+let backendPort = process.env.REACT_APP_BACKEND_PORT || 3001;
+
 const apiInstance = axios.create({
-  baseURL: "https://your-api-url.com",
+  baseURL: "http://localhost:" + backendPort,
 });
 
 apiInstance.interceptors.request.use(
